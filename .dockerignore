@@ -1,0 +1,19 @@
+# Git
+.git
+.gitignore
+
+# Dependencies
+node_modules
+
+# Build artifacts
+build
+dist
+web-build
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Other
+.idea
+npm-debug.log
