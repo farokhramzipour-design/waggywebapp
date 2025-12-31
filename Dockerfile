@@ -3,8 +3,8 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
+# Copy package.json
+COPY package.json ./
 
 # Install dependencies
 RUN npm install
@@ -26,7 +26,6 @@ FROM nginx:1.23-alpine
 COPY --from=builder /app/web-build /usr/share/nginx/html
 
 # Copy a custom Nginx configuration
-# We will create this file next. It's important for single-page applications.
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 80
