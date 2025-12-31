@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  wagy-webapp:
+    # Build the image using the Dockerfile in the current directory
+    build: .
+    
+    # Name the container for easier management
+    container_name: wagy-webapp-container
+    
+    # Map port 8080 on your machine to port 80 inside the container
+    ports:
+      - "8080:80"
+      
+    # Automatically restart the container if it stops
+    restart: unless-stopped
