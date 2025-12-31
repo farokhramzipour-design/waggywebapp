@@ -1,5 +1,17 @@
-import { AppRegistry } from 'react-native';
+import React from 'react';
+import { AppRegistry, Platform } from 'react-native';
+import ReactDOM from 'react-dom/client';
 import AppNavigator from './src/navigation/AppNavigator';
-import { name as appName } from './app.json';
 
-AppRegistry.registerComponent(appName, () => AppNavigator);
+// For React Native mobile
+AppRegistry.registerComponent('wagywebapp', () => AppNavigator);
+
+// For React Native Web
+if (Platform.OS === 'web') {
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    <React.StrictMode>
+      <AppNavigator />
+    </React.StrictMode>
+  );
+}

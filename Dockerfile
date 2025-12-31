@@ -7,23 +7,22 @@ WORKDIR /app
 COPY package.json ./
 
 # Install dependencies
+# We should also copy the lock file if it exists for reproducible builds
+COPY package-lock.json* yarn.lock* pnpm-lock.yaml* ./
 RUN npm install
 
 # Copy the rest of the application source code
 COPY . .
 
 # Build the application for the web
-# Note: You might need to adjust this command based on your project setup.
-# This assumes you have a "web-build" script in your package.json
-# that builds for web, e.g., using "react-native-web".
-# If you are using Expo, the command might be "npx expo export:web"
 RUN npm run web-build
 
 # Stage 2: Serve the application with Nginx
 FROM nginx:1.23-alpine
 
 # Copy the build output from the builder stage
-COPY --from=builder /app/web-build /usr/share/nginx/html
+# react-scripts builds to a 'build' directory by default
+COPY --from=builder /app/build /usr/share/nginx/html
 
 # Copy a custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
