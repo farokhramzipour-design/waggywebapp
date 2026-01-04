@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, Text } from 'react-native';
 import Button from '../components/Button';
+import { colors, spacing, typography } from '../theme';
 import {
   emailLogin,
   verifyOtp,
@@ -10,24 +11,16 @@ import {
 } from '../services/authService';
 
 const LoginScreen = ({ onLogin }) => {
-  const [loginMethod, setLoginMethod] = useState(null); // 'email', 'mobile'
+  const [loginMethod, setLoginMethod] = useState(null);
   const [email, setEmail] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
 
   const handleGoogleLogin = async () => {
-    // This would typically involve a library like @react-native-google-signin/google-signin
-    // to get the id_token, which would then be sent to our backend.
-    // For now, we'll just call the endpoint that initiates the flow.
     try {
-      // In a real app, you would get a URL from this call and open it in a browser/webview
       const response = await googleLogin();
       console.log('Redirect to Google login:', response.data);
-      // After the user logs in with Google and your backend callback is hit,
-      // the backend would redirect back to the app with tokens.
-      // This part of the flow is complex to simulate here without a running backend
-      // and deep linking setup.
     } catch (error) {
       console.error(error);
     }
@@ -70,72 +63,51 @@ const LoginScreen = ({ onLogin }) => {
   };
 
   const renderInitialOptions = () => (
-    <View>
-      <Button title="Login with Google" onPress={handleGoogleLogin} />
-      <Button title="Login with Email" onPress={() => setLoginMethod('email')} />
-      <Button title="Login with Mobile" onPress={() => setLoginMethod('mobile')} />
+    <View style={styles.contentContainer}>
+      <Text style={styles.title}>Welcome!</Text>
+      <Text style={styles.subtitle}>Sign in to continue</Text>
+      <Button title="Continue with Google" onPress={handleGoogleLogin} />
+      <Button title="Continue with Email" onPress={() => setLoginMethod('email')} style={styles.secondaryButton} textStyle={styles.secondaryButtonText} />
+      <Button title="Continue with Mobile" onPress={() => setLoginMethod('mobile')} style={styles.secondaryButton} textStyle={styles.secondaryButtonText} />
     </View>
   );
 
-  const renderEmailLogin = () => (
-    !otpSent ? (
-      <>
-        <TextInput
-          style={styles.input}
-          placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-        <Button title="Send OTP" onPress={handleEmailLogin} />
-      </>
-    ) : (
-      <>
-        <TextInput
-          style={styles.input}
-          placeholder="OTP"
-          value={otp}
-          onChangeText={setOtp}
-          keyboardType="numeric"
-        />
-        <Button title="Login" onPress={handleVerifyEmailOtp} />
-      </>
-    )
-  );
-
-  const renderMobileLogin = () => (
-    !otpSent ? (
-      <>
-        <TextInput
-          style={styles.input}
-          placeholder="Phone Number"
-          value={phoneNumber}
-          onChangeText={setPhoneNumber}
-          keyboardType="phone-pad"
-        />
-        <Button title="Send OTP" onPress={handleMobileLogin} />
-      </>
-    ) : (
-      <>
-        <TextInput
-          style={styles.input}
-          placeholder="OTP"
-          value={otp}
-          onChangeText={setOtp}
-          keyboardType="numeric"
-        />
-        <Button title="Login" onPress={handleVerifyMobileOtp} />
-      </>
-    )
+  const renderForm = (isEmail) => (
+    <View style={styles.contentContainer}>
+      <Text style={styles.title}>{isEmail ? 'Email Login' : 'Mobile Login'}</Text>
+      {!otpSent ? (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder={isEmail ? 'Enter your email' : 'Enter your phone number'}
+            value={isEmail ? email : phoneNumber}
+            onChangeText={isEmail ? setEmail : setPhoneNumber}
+            keyboardType={isEmail ? 'email-address' : 'phone-pad'}
+            autoCapitalize="none"
+          />
+          <Button title="Send Code" onPress={isEmail ? handleEmailLogin : handleMobileLogin} />
+        </>
+      ) : (
+        <>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter the code"
+            value={otp}
+            onChangeText={setOtp}
+            keyboardType="numeric"
+          />
+          <Button title="Verify & Sign In" onPress={isEmail ? handleVerifyEmailOtp : handleVerifyMobileOtp} />
+        </>
+      )}
+    </View>
   );
 
   const renderContent = () => {
     switch (loginMethod) {
       case 'email':
-        return renderEmailLogin();
+        return renderForm(true);
       case 'mobile':
-        return renderMobileLogin();
+        return renderForm(false);
       default:
         return renderInitialOptions();
     }
@@ -144,7 +116,7 @@ const LoginScreen = ({ onLogin }) => {
   return (
     <View style={styles.container}>
       {renderContent()}
-      {loginMethod && <Button title="Back" onPress={() => { setLoginMethod(null); setOtpSent(false); }} />}
+      {loginMethod && <Button title="Back to options" onPress={() => { setLoginMethod(null); setOtpSent(false); }} style={styles.tertiaryButton} textStyle={styles.tertiaryButtonText} />}
     </View>
   );
 };
@@ -153,14 +125,46 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    backgroundColor: colors.white,
+    padding: spacing.large,
+  },
+  contentContainer: {
+    alignItems: 'center',
+  },
+  title: {
+    ...typography.h1,
+    marginBottom: spacing.small,
+  },
+  subtitle: {
+    ...typography.body,
+    marginBottom: spacing.large,
+    color: colors.secondary,
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    backgroundColor: colors.lightGray,
     borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
+    borderColor: colors.gray,
+    borderRadius: 10,
+    height: 50,
+    paddingHorizontal: spacing.medium,
+    width: '100%',
+    ...typography.body,
+    marginBottom: spacing.medium,
+  },
+  secondaryButton: {
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  secondaryButtonText: {
+    color: colors.primary,
+  },
+  tertiaryButton: {
+    backgroundColor: 'transparent',
+  },
+  tertiaryButtonText: {
+    color: colors.secondary,
+    fontWeight: 'normal',
   },
 });
 
