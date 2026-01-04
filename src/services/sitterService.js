@@ -19,6 +19,26 @@ export const updatePersonalInfo = (data: SitterPersonalInfoUpdate): Promise<Sitt
   return apiClient.patch('/sitters/personal-info', data);
 };
 
+// New function for uploading the profile photo
+export const uploadProfilePhoto = async (imageUri: string) => {
+  const formData = new FormData();
+  
+  // The backend needs to know the name of the file field, e.g., 'file'
+  // It also needs the file data itself.
+  formData.append('file', {
+    uri: imageUri,
+    name: `photo_${Date.now()}.jpg`,
+    type: 'image/jpeg',
+  });
+
+  // Make a POST request to the upload endpoint
+  return apiClient.post('/sitters/profile-photo', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
 export const updateLocation = (data: SitterLocationUpdate): Promise<SitterProfileResponse> => {
   return apiClient.patch('/sitters/location', data);
 };
