@@ -3,30 +3,24 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
-# Copy package.json
+# Declare the build argument
+ARG REACT_APP_API_URL
+
+# Set it as an environment variable for the build process
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 COPY package.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy the rest of the application source code
 COPY . .
 
-# Build the application for the web
+# The REACT_APP_API_URL will be automatically available during this step
 RUN npm run web-build
 
 # Stage 2: Serve the application with Nginx
 FROM nginx:1.23-alpine
 
-# Copy the build output from the builder stage
-# react-scripts builds to a 'build' directory by default
 COPY --from=builder /app/build /usr/share/nginx/html
-
-# Copy a custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80
 EXPOSE 80
-
-# Start Nginx
 CMD ["nginx", "-g", "daemon off;"]
